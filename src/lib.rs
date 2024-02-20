@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use serde::{Deserialize, Serialize};
 pub use tailwag_forms_macros as macros;
 
@@ -5,6 +7,20 @@ pub use tailwag_forms_macros as macros;
 pub struct Form {
     pub button_name: String,
     pub fields: Vec<FormField>,
+}
+
+impl Form {
+    #[allow(unused)]
+    fn save_json(
+        &self,
+        filepath: &str,
+    ) -> Result<(), std::io::Error> {
+        let json_def = serde_json::to_string(self)?;
+        let dir = Path::new(filepath).parent().unwrap_or(Path::new(filepath));
+        std::fs::create_dir_all(dir).expect("Failed to create directories.");
+        std::fs::write(filepath, json_def.as_bytes())?;
+        Ok(())
+    }
 }
 
 #[derive(Default, Serialize, Deserialize)]
