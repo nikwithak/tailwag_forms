@@ -11,7 +11,7 @@ pub struct Form {
 
 impl Form {
     #[allow(unused)]
-    fn save_json(
+    pub fn save_json(
         &self,
         filepath: &str,
     ) -> Result<(), std::io::Error> {
@@ -34,6 +34,7 @@ pub enum InputType {
 #[derive(Default, Serialize, Deserialize)]
 pub struct FormField {
     name: String, // TODO: Verify this is unique with underscores
+    #[serde(rename = "type")]
     field_type: InputType,
     is_required: bool,
     label: Option<String>,

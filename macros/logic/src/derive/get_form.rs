@@ -1,7 +1,9 @@
 use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Field};
-use tailwag_utils::macro_utils::attribute_parsing::GetAttribute;
+use tailwag_utils::macro_utils::{
+    attribute_parsing::GetAttribute, type_parsing::get_type_from_field,
+};
 
 pub fn derive_struct(input: &DeriveInput) -> TokenStream {
     let &DeriveInput {
@@ -17,7 +19,11 @@ pub fn derive_struct(input: &DeriveInput) -> TokenStream {
 
     match &data.fields {
         syn::Fields::Named(fields) => {
-            let field_names = fields.named.iter().map(build_form_field);
+            let field_names = fields
+                .named
+                .iter()
+                .filter(|f| f.get_attribute("no_form").is_none())
+                .map(build_form_field);
 
             fn build_form_field(field: &Field) -> TokenStream {
                 let name =
@@ -28,10 +34,19 @@ pub fn derive_struct(input: &DeriveInput) -> TokenStream {
                 // TODO: Set label with attribute
                 // let label = field
                 //     .get_attribute("label")
-                //     .map_or(name.to_string(), |label| label.parse_args());
+                //     .map_or(name.to_string(), |label| label.parse_args())field_type;
                 let label = &name;
+                let type_name = match get_type_from_field(field) {
+                    // tailwag_utils::macro_utils::type_parsing::BaseType::Boolean => todo!(),
+                    tailwag_utils::macro_utils::type_parsing::BaseType::Int
+                    | tailwag_utils::macro_utils::type_parsing::BaseType::Float => quote!(number),
+                    // tailwag_utils::macro_utils::type_parsing::BaseType::String => todo!(),
+                    // tailwag_utils::macro_utils::type_parsing::BaseType::Timestamp => todo!(),
+                    // tailwag_utils::macro_utils::type_parsing::BaseType::Uuid => todo!(),
+                    _ => quote!(text),
+                };
 
-                let mut tokens = quote!(FormField::text(#name).label(#label));
+                let mut tokens = quote!(FormField::#type_name(#name).label(#label));
                 if required {
                     tokens = quote!(#tokens.is_required(true));
                 }
