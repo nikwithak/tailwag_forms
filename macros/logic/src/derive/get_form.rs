@@ -37,7 +37,7 @@ pub fn derive_struct(input: &DeriveInput) -> TokenStream {
                 //     .map_or(name.to_string(), |label| label.parse_args())field_type;
                 let label = &name;
                 let type_name = match get_type_from_field(field) {
-                    // tailwag_utils::macro_utils::type_parsing::BaseType::Boolean => todo!(),
+                    tailwag_utils::macro_utils::type_parsing::BaseType::Boolean => quote!(boolean),
                     tailwag_utils::macro_utils::type_parsing::BaseType::Int
                     | tailwag_utils::macro_utils::type_parsing::BaseType::Float => quote!(number),
                     // tailwag_utils::macro_utils::type_parsing::BaseType::String => todo!(),

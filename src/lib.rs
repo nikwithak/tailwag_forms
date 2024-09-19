@@ -29,6 +29,7 @@ pub enum InputType {
     Text,
     Password,
     Number,
+    Checkbox,
 }
 
 #[derive(Default, Serialize, Deserialize)]
@@ -63,6 +64,16 @@ impl FormField {
         Self {
             name: name.to_string(),
             field_type: InputType::Number,
+            ..Default::default()
+        }
+    }
+    pub fn boolean(name: &str) -> Self {
+        Self::bool(name)
+    }
+    pub fn bool(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+            field_type: InputType::Checkbox,
             ..Default::default()
         }
     }
